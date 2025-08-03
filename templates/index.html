@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Webpage Generator</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        form { margin-bottom: 1em; }
+        textarea { width: 100%; height: 100px; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Generate a Website with AI</h1>
+    <form method="post">
+        <textarea name="prompt" placeholder="Describe your site here...">{{ prompt }}</textarea><br>
+        <button type="submit">Generate</button>
+    </form>
+
+    {% if result %}
+    <h2>Preview:</h2>
+    <iframe srcdoc="{{ result|safe }}"></iframe>
+    {% endif %}
+</body>
+</html>
