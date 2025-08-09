@@ -15,6 +15,8 @@ def index():
 
         try:
             response = requests.post(API_URL, json={"prompt": prompt})
+            print("Backend response status:", response.status_code)
+            print("Backend response text:", response.text)
             html_result = response.json().get("html", "No HTML returned")
 
         except Exception as e:
