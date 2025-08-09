@@ -5,6 +5,7 @@ app = Flask(__name__)
 API_URL = "https://aiwebgenback-b5b8903aef86.herokuapp.com/generate"  # Replace with your actual API
 
 @app.route("/generate", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def index():
     html_result = ""
     prompt = ""
