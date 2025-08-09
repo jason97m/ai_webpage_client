@@ -2,7 +2,7 @@ from flask import Flask, request, render_template
 import requests
 
 app = Flask(__name__)
-API_URL = "https://your-api-name.herokuapp.com/generate"  # Replace with your actual API
+API_URL = "https://aiwebgenback-b5b8903aef86.herokuapp.com/generate"  # Replace with your actual API
 
 @app.route("/generate", methods=["GET", "POST"])
 def index():
