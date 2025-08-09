@@ -1,36 +1,25 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, render_template
 import requests
-import os
 
 app = Flask(__name__)
+API_URL = "https://your-api-name.herokuapp.com/generate"  # Replace with your actual API
 
-BACKEND_URL = os.getenv("https://aiwebgenback-b5b8903aef86.herokuapp.com/generate")  
-
-@app.route('/')
+@app.route("/generate", methods=["GET", "POST"])
 def index():
-    return render_template('index.html')
+    html_result = ""
+    prompt = ""
 
-@app.route('/generate', methods=['POST'])
-def generate():
-    data = request.get_json()
-    prompt = data.get('prompt', '')
+    if request.method == "POST":
+        prompt = request.form["prompt"]
 
-    if not prompt:
-        return jsonify({'error': 'Missing prompt'}), 400
+        try:
+            response = requests.post(API_URL, json={"prompt": prompt})
+            html_result = response.json().get("html", "No HTML returned")
 
-    try:
-        # Call your backend API with full URL
-        backend_response = requests.post(
-            BACKEND_URL,
-            json={'prompt': prompt}
-        )
-        backend_response.raise_for_status()
-        result = backend_response.json()
-        return jsonify(result)
+        except Exception as e:
+            html_result = f"<p>Error: {str(e)}</p>"
 
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+    return render_template("index.html", prompt=prompt, result=html_result)
 
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+if __name__ == "__main__":
+    app.run(debug=True)
