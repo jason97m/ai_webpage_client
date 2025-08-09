@@ -1,46 +1,26 @@
-from flask import Flask, request, jsonify, send_from_directory
-import openai
-import os
+from flask import Flask, request, render_template
+import requests
 
 app = Flask(__name__)
+API_URL = "https://aiwebgenback-b5b8903aef86.herokuapp.com/generate"  # Openai API
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# Serve the frontend
-@app.route("/generate")
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return send_from_directory('.', '/templates/index.html')
+    html_result = ""
+    prompt = ""
 
-@app.route('/generate', methods=['POST'])
-def generate_site():
-    data = request.get_json()
-    prompt = data.get('prompt', '')
+    if request.method == "POST":
+        prompt = request.form["prompt"]
 
-    if not prompt:
-        return jsonify({'error': 'Missing prompt'}), 400
+        try:
+            response = requests.post(API_URL, json={"prompt": prompt})
+            print("Raw response:", response.text)  # debug print check
+            html_result = response.json().get("html", "No HTML returned")
 
-    full_prompt = f"Generate a single-page HTML website with inline CSS based on: {prompt}"
+        except Exception as e:
+            html_result = f"<p>Error: {str(e)}</p>"
 
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that outputs only HTML and CSS without markdown formatting."},
-                {"role": "user", "content": full_prompt}
-            ],
-            max_tokens=1000,
-            temperature=0.7,
-        )
-        html_code = response.choices[0].message.content.strip()
+    return render_template("index.html", prompt=prompt, result=html_result)
 
-        # Remove markdown fences if they exist
-        if html_code.startswith("```") and html_code.endswith("```"):
-            html_code = "\n".join(html_code.split("\n")[1:-1]).strip()
-
-        return jsonify({'html': html_code})
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+if __name__ == "__main__":
+    app.run(debug=True)
