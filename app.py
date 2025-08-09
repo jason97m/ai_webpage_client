@@ -1,26 +1,36 @@
-from flask import Flask, request, render_template
+from flask import Flask, render_template, request, jsonify
 import requests
+import os
 
 app = Flask(__name__)
-API_URL = "https://aiwebgenback-b5b8903aef86.herokuapp.com/generate"  # Openai API
 
-@app.route("/", methods=["GET", "POST"])
+BACKEND_URL = os.getenv("BACKEND_URL")  # e.g. "https://your-backend-app.herokuapp.com/generate"
+
+@app.route('/')
 def index():
-    html_result = ""
-    prompt = ""
+    return render_template('index.html')
 
-    if request.method == "POST":
-        prompt = request.form["prompt"]
+@app.route('/generate', methods=['POST'])
+def generate():
+    data = request.get_json()
+    prompt = data.get('prompt', '')
 
-        try:
-            response = requests.post(API_URL, json={"prompt": prompt})
-            print("Raw response:", response.text)  # debug print check
-            html_result = response.json().get("html", "No HTML returned")
+    if not prompt:
+        return jsonify({'error': 'Missing prompt'}), 400
 
-        except Exception as e:
-            html_result = f"<p>Error: {str(e)}</p>"
+    try:
+        # Call your backend API with full URL
+        backend_response = requests.post(
+            BACKEND_URL,
+            json={'prompt': prompt}
+        )
+        backend_response.raise_for_status()
+        result = backend_response.json()
+        return jsonify(result)
 
-    return render_template("index.html", prompt=prompt, result=html_result)
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
