@@ -14,7 +14,7 @@ def index():
 
         try:
             response = requests.post(API_URL, json={"prompt": prompt})
-            print("Raw response:", response.text)  # Add this debug print
+            print("Raw response:", response.text)  # debug print check
             html_result = response.json().get("html", "No HTML returned")
 
         except Exception as e:
