@@ -11,6 +11,7 @@ def index():
 
     if request.method == "POST":
         prompt = request.form["prompt"]
+        print("=== RAW POST DATA ===", prompt)  # This will log the whole JSON prompt
 
         try:
             response = requests.post(API_URL, json={"prompt": prompt})
