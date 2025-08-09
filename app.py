@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-BACKEND_URL = os.getenv("BACKEND_URL")  # e.g. "https://your-backend-app.herokuapp.com/generate"
+BACKEND_URL = os.getenv("https://aiwebgenback-b5b8903aef86.herokuapp.com/generate")  
 
 @app.route('/')
 def index():
