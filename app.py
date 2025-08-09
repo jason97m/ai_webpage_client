@@ -19,7 +19,7 @@ def index():
         except Exception as e:
             html_result = f"<p>Error: {str(e)}</p>"
 
-    return render_template("/templates/index.html", prompt=prompt, result=html_result)
+    return render_template("templates/index.html", prompt=prompt, result=html_result)
 
 if __name__ == "__main__":
     app.run(debug=True)
