@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Webpage Generator - 1QuickPage</title>
+    <style>
+        /* Reset & Base */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Canvas for Sparkles */
+        #sparkleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* behind everything */
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+        }
+
+        /* Headings */
+        h1 {
+            margin-top: 1.5em;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+
+        h2 {
+            margin-top: 2em;
+            font-size: 2em;
+            color: #ffdd57;
+            text-shadow: 1px 1px 6px rgba(0,0,0,0.6);
+        }
+
+        /* Form Styling */
+        form {
+            margin: 2em auto;
+            max-width: 700px;
+            background: rgba(255,255,255,0.1);
+            padding: 2em;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 1em;
+            border-radius: 10px;
+            border: none;
+            resize: vertical;
+            font-size: 1em;
+            font-family: inherit;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        button {
+            margin-top: 1em;
+            padding: 0.75em 2em;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+
+        /* Iframe Preview */
+        iframe {
+            width: 90%;
+            height: 600px;
+            margin: 1.5em auto;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sparkle Background -->
+    <canvas id="sparkleCanvas"></canvas>
+
+    <h1>Generate a Website with AI</h1>
+    <form method="post" action="/">
+        <textarea name="prompt" placeholder="Describe your site here...">{{ prompt }}</textarea><br>
+        <button type="submit">Generate</button>
+    </form>
+
+{% if result %}
+<h2>Preview:</h2>
+<iframe id="previewFrame"></iframe>
+
+<script>
+  const iframe = document.getElementById('previewFrame');
+  const html = `{{ result | replace('`', '\\`') | safe }}`;
+  iframe.srcdoc = html;
+</script>
+{% endif %}
+
+<script>
+/* Sparkle Particle Animation */
+const canvas = document.getElementById('sparkleCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor() {
+        this.reset();
+    }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+        this.alpha = Math.random() * 0.8 + 0.2;
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+            this.reset();
+        }
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
+        ctx.fill();
+    }
+}
+
+function initParticles(count) {
+    particles = [];
+    for (let i = 0; i < count; i++) {
+        particles.push(new Particle());
+    }
+}
+initParticles(150);
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let particle of particles) {
+        particle.update();
+        particle.draw();
+    }
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
